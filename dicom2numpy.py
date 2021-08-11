@@ -27,13 +27,13 @@ def read(patient_dir):
 
 
 if __name__ == '__main__':
-    master = 'T:/TCIA_pancreas/manifest-1599750808610/Pancreas-x/'
+    master = 'T:/TCIA_pancreas/manifest-1599750808610/Pancreas-CT/'
     patient_list = os.listdir(master)
     patient_counter = 0
     
-    print('Converting patient x...')
+    print('Converting patients...')
     for patient in tqdm(patient_list):
         patient_dir = master + patient
         volume = read(patient_dir)
-        np.save('./npydata/x/' + str(patient_counter) + '.npy', volume)
+        np.save('./dataset/' + str(patient_counter) + '.npy', volume)
         patient_counter += 1
