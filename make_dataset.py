@@ -5,13 +5,17 @@ import SimpleITK as sitk
 import os
 import random
 
+def normalize(array):
+    array = array - np.amin(array) / (np.amax(array) - np.amin(array))
+    return array
+
 # procedural deformations with gryds and DIR with SimpleElastix
 batch_size = 1000
 num_batches = 10
 num_patches_per_registration = 5
 ct_images = os.listdir('./dataset/')[0:70] # first 70 used for training
 
-for batch in range(6, 6 + num_batches):
+for batch in range(7, 7 + num_batches):
     X = np.zeros((batch_size, 64, 64, 4), dtype='float32')
     E = np.zeros((batch_size,), dtype='float32')
     random.shuffle(ct_images)
@@ -60,19 +64,21 @@ for batch in range(6, 6 + num_batches):
                 registration_deformation = sitk.GetArrayFromImage(strx.GetDeformationField())
 
                 # get patches and errors
-                normed_dvf1 = (np.flip(registration_deformation, 2) - np.amin(registration_deformation)) / (
-                            np.amax(registration_deformation) - np.amin(registration_deformation))
-                normed_dvf2 = (np.moveaxis(true_deformation, 0, 2) - np.amin(true_deformation)) / (
-                            np.amax(true_deformation) - np.amin(true_deformation))
+                normed_dvf1 = normalize(np.flip(registration_deformation, 2))
+                normed_dvf2 = normalize(np.moveaxis(true_deformation, 0, 2))
+                if np.amax(image) > 1 or np.amin(image) < 0:
+                    image = normalize(image)
+                    dir_image = normalize(dir_image)
+                    transformed_image = normalize(transformed_image)
 
                 for _ in range(num_patches_per_registration):
                     (xx_corner, yy_corner) = np.random.randint(0, 235, size=2)
                     x = np.array([image[xx_corner:xx_corner+64, yy_corner:yy_corner+64],
                                   dir_image[xx_corner:xx_corner+64, yy_corner:yy_corner+64],
+                                  transformed_image[xx_corner:xx_corner+64, yy_corner:yy_corner+64],
                                   normed_dvf1[xx_corner:xx_corner+64, yy_corner:yy_corner+64, 1],
                                   normed_dvf1[xx_corner:xx_corner+64, yy_corner:yy_corner+64, 0]
-                                  ]
-                                 )
+                                  ])
                     x = np.moveaxis(x, 0, 2)
                     e = ((normed_dvf1[xx_corner:xx_corner + 64, yy_corner:yy_corner + 64] - normed_dvf2[xx_corner:xx_corner + 64, yy_corner:yy_corner + 64]) ** 2).mean()
                     try:
