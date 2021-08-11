@@ -11,21 +11,24 @@ def normalize(array):
 
 # procedural deformations with gryds and DIR with SimpleElastix
 batch_size = 1000
-num_batches = 10
+num_batches = 20
 num_patches_per_registration = 5
 ct_images = os.listdir('./dataset/')[0:70] # first 70 used for training
 
-for batch in range(num_batches):
+for batch in range(1, num_batches):
     X = np.zeros((batch_size, 64, 64, 5), dtype='float32')
     E = np.zeros((batch_size,), dtype='float32')
     random.shuffle(ct_images)
     total_generated = 0
     while total_generated < batch_size:
         for file in ct_images:
+            if total_generated > batch_size:
+                continue
             volume = np.load('./dataset/' + file)
             slices = volume.shape[0]
             for slice in range(slices):
-
+                if total_generated > batch_size:
+                    continue
                 (x_corner, y_corner) = np.random.randint(0, 211, size=2)
                 image = volume[slice, x_corner:x_corner+300, y_corner:y_corner+300]
 
@@ -52,6 +55,7 @@ for batch in range(num_batches):
                 parameterMapVector = sitk.VectorOfParameterMap()
                 parameterMapVector.append(sitk.GetDefaultParameterMap("bspline"))
                 elastixImageFilter.SetParameterMap(parameterMapVector)
+                elastixImageFilter.LogToConsoleOff()
                 elastixImageFilter.Execute()
                 dir_image = sitk.GetArrayFromImage(elastixImageFilter.GetResultImage()).reshape(300, 300)
 
@@ -66,10 +70,10 @@ for batch in range(num_batches):
                 # get patches and errors
                 normed_dvf1 = normalize(np.flip(registration_deformation, 2))
                 normed_dvf2 = normalize(np.moveaxis(true_deformation, 0, 2))
-                if np.amax(image) > 1 or np.amin(image) < 0:
-                    image = normalize(image)
-                    dir_image = normalize(dir_image)
-                    transformed_image = normalize(transformed_image)
+                # if np.amax(image) > 1 or np.amin(image) < 0:
+                #     image = normalize(image)
+                #     dir_image = normalize(dir_image)
+                #     transformed_image = normalize(transformed_image)
 
                 for _ in range(num_patches_per_registration):
                     (xx_corner, yy_corner) = np.random.randint(0, 235, size=2)
@@ -90,9 +94,7 @@ for batch in range(num_batches):
                 np.save('./npydata/x/' + str(batch) + '.npy', X)
                 np.save('./npydata/e/' + str(batch) + '.npy', E)
                 if total_generated > batch_size:
-                    break
-            if total_generated > batch_size:
-                break
+                    continue
 
 
 

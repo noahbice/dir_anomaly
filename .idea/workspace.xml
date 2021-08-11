@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="02a40ede-5c90-45af-b754-2f63cd767884" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransformParameters.0.txt" beforeDir="false" afterPath="$PROJECT_DIR$/TransformParameters.0.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/make_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/make_dataset.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
