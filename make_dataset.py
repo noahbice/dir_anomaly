@@ -15,8 +15,8 @@ num_batches = 10
 num_patches_per_registration = 5
 ct_images = os.listdir('./dataset/')[0:70] # first 70 used for training
 
-for batch in range(7, 7 + num_batches):
-    X = np.zeros((batch_size, 64, 64, 4), dtype='float32')
+for batch in range(num_batches):
+    X = np.zeros((batch_size, 64, 64, 5), dtype='float32')
     E = np.zeros((batch_size,), dtype='float32')
     random.shuffle(ct_images)
     total_generated = 0
